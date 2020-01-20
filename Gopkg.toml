@@ -68,23 +68,31 @@ ignored = [
 
 [[constraint]]
   name = "k8s.io/api"
-  version = "kubernetes-1.11.0"
+  version = "kubernetes-1.13.6"
 
 [[constraint]]
   name = "k8s.io/apiextensions-apiserver"
-  version = "kubernetes-1.11.0"
+  version = "kubernetes-1.13.6"
 
 [[constraint]]
   name = "k8s.io/apimachinery"
-  version = "kubernetes-1.11.0"
+  version = "kubernetes-1.13.6"
+
+[[override]]
+  name = "k8s.io/apiserver"
+  version = "kubernetes-1.13.6"
 
 [[constraint]]
   name = "k8s.io/client-go"
-  version = "8.0.0"
+  version = "=v10.0.0"
 
 [[constraint]]
   name = "k8s.io/kubernetes"
-  version = "1.11.0"
+  version = "=v1.13.6"
+
+[[override]]
+  name = "github.com/imdario/mergo"
+  revision = "9316a62528ac99aaecb4e47eadd6dc8aa6533d58"
 
 [prune]
   go-tests = true

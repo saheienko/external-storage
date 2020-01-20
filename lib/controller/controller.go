@@ -17,6 +17,7 @@ limitations under the License.
 package controller
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -53,7 +54,7 @@ import (
 	ref "k8s.io/client-go/tools/reference"
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/kubernetes/pkg/apis/core/v1/helper"
-	utilversion "k8s.io/kubernetes/pkg/util/version"
+	utilversion "k8s.io/apimachinery/pkg/util/version"
 )
 
 // annClass annotation represents the storage class associated with a resource:
@@ -688,6 +689,7 @@ func (ctrl *ProvisionController) Run(stopCh <-chan struct{}) {
 			ctrl.leaderElectionNamespace,
 			strings.Replace(ctrl.provisionerName, "/", "-", -1),
 			ctrl.client.CoreV1(),
+			ctrl.client.CoordinationV1(),
 			resourcelock.ResourceLockConfig{
 				Identity:      ctrl.id,
 				EventRecorder: ctrl.eventRecorder,
@@ -696,7 +698,7 @@ func (ctrl *ProvisionController) Run(stopCh <-chan struct{}) {
 			glog.Fatalf("Error creating lock: %v", err)
 		}
 
-		leaderelection.RunOrDie(leaderelection.LeaderElectionConfig{
+		leaderelection.RunOrDie(context.TODO(), leaderelection.LeaderElectionConfig{
 			Lock:          rl,
 			LeaseDuration: ctrl.leaseDuration,
 			RenewDeadline: ctrl.renewDeadline,
