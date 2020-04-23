@@ -101,11 +101,15 @@ func (p *snapshotProvisioner) Provision(options controller.ProvisionOptions) (*v
 	if !ok {
 		return nil, fmt.Errorf("snapshot annotation not found on PV")
 	}
+	snapshotNS := options.PVC.Annotations[crdclient.SnapshotNamespacePVCAnnotation]
+	if snapshotNS == "" {
+		snapshotNS = options.PVC.Namespace
+	}
 
 	var snapshot crdv1.VolumeSnapshot
 	err := p.crdclient.Get().
 		Resource(crdv1.VolumeSnapshotResourcePlural).
-		Namespace(options.PVC.Namespace).
+		Namespace(snapshotNS).
 		Name(snapshotName).
 		Do().Into(&snapshot)
 
@@ -181,6 +185,8 @@ func (p *snapshotProvisioner) Delete(volume *v1.PersistentVolume) error {
 	if !ok {
 		return fmt.Errorf("%s is not supported volume for %#v", volumeType, *volume)
 	}
+
+	// glusterfs resturl
 
 	// delete PV
 	return plugin.VolumeDelete(volume)

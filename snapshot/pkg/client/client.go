@@ -35,6 +35,8 @@ import (
 const (
 	// SnapshotPVCAnnotation is "snapshot.alpha.kubernetes.io/snapshot"
 	SnapshotPVCAnnotation = "snapshot.alpha.kubernetes.io/snapshot"
+	// SnapshotNamespacePVCAnnotation is "snapshot.alpha.kubernetes.io/snapshot-namespace"
+	SnapshotNamespacePVCAnnotation = "stork.libopenstorage.org/snapshot-source-namespace"
 )
 
 // NewClient creates a new RESTClient

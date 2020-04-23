@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM busybox:glibc
+FROM ubuntu
 COPY snapshot-controller /bin/snapshot-controller
 # Root CA certificates
-COPY etc /etc
-COPY usr /usr
-ENTRYPOINT ["/bin/snapshot-controller"]
+#COPY etc /etc
+#COPY usr /usr
+CMD ["/bin/snapshot-controller"]

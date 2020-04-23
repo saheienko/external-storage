@@ -284,6 +284,21 @@ func (vs *volumeSnapshotter) takeSnapshot(
 		return nil, nil, fmt.Errorf("%s is not supported volume for %#v", volumeType, spec)
 	}
 
+	tt := make(map[string]string)
+	origTags := tags
+	if tags != nil {
+		tt = *tags
+	}
+	sc, err := vs.coreClient.StorageV1().StorageClasses().Get(pv.Spec.StorageClassName, metav1.GetOptions{})
+	if err == nil {
+		if sc.Provisioner == "kubernetes.io/glusterfs" {
+			for k, v := range sc.Parameters {
+				tt[k] = v
+			}
+		}
+	}
+
+	tags = &tt
 	snapDataSource, snapConditions, err := plugin.SnapshotCreate(snapshot, pv, tags)
 	if err != nil {
 		glog.Warningf("failed to snapshot %#v, err: %v", spec, err)
@@ -291,6 +306,7 @@ func (vs *volumeSnapshotter) takeSnapshot(
 		glog.Infof("snapshot created: %v. Conditions: %#v", snapDataSource, snapConditions)
 	}
 
+	tags = origTags
 	return snapDataSource, snapConditions, err
 }
 
@@ -310,12 +326,28 @@ func (vs *volumeSnapshotter) deleteSnapshot(spec *crdv1.VolumeSnapshotDataSpec) 
 	if err != nil {
 		glog.Warningf("failed to retrieve PV %s from the API server: %q", spec.PersistentVolumeRef.Name, err)
 	}
+
+	tt := make(map[string]string)
+	origTags := pv.Annotations
+	if pv.Annotations != nil {
+		tt = pv.Annotations
+	}
+	sc, err := vs.coreClient.StorageV1().StorageClasses().Get(pv.Spec.StorageClassName, metav1.GetOptions{})
+	if err == nil {
+		if sc.Provisioner == "kubernetes.io/glusterfs" {
+			for k, v := range sc.Parameters {
+				tt[k] = v
+			}
+		}
+	}
+
 	err = plugin.SnapshotDelete(&source, pv)
 	if err != nil {
 		return fmt.Errorf("failed to delete snapshot %#v, err: %v", source, err)
 	}
 	glog.Infof("snapshot %#v deleted", source)
 
+	pv.Annotations = origTags
 	return nil
 }
 
